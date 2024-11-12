@@ -11,7 +11,7 @@ const SearchBar = ({ onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(query);
-    // setQuery(""); // Очистка поля 
+    setQuery(""); // Очистка поля 
   };
 
   return (
