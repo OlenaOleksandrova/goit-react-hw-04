@@ -1,12 +1,12 @@
 header{
     background-color: rgb(91, 91, 156);
-    width: 700px;
+    width: 100%;
    
 
 }
 input {
     margin-right: 10px;
-    width: 300px;
+    width: 500px;
     
 }
 button {

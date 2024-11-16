@@ -5,6 +5,7 @@ import { fetchImages } from '../api';
 import { useState, useEffect } from 'react'
 import './App.css'
 import Loader from './components/Loader/Loader';
+
 import ImageModal from "./components/ImageModal/ImageModal"
 
 const App = () => {
@@ -14,13 +15,12 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [nbPages, setNbPages] = useState(0);
-  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [chooseImage, setChooseImage] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const openModal = () => setIsOpenModal(true);
-  const closeModal = () => setIsOpenModal(false);
-
-
+  // const openModal = (image) => setIsOpenModal(true);
+  // const closeModal = () => setIsOpenModal(false);
 
   const handleSearchSubmit = (query) => {
     if (!query.trim()) {
@@ -33,48 +33,68 @@ const App = () => {
 
   };
 
-  useEffect(() => {
-    const fetchData = async () => { 
-      if (!query) return; // пририваємо запит,якщо query не порожній
+  const closeModal = () => {
+          setModalIsOpen(false);
+          setChooseImage(null);
+        }
+  const handleImageClick= (image) => {
+          setChooseImage(image);
+          setModalIsOpen(true);
+  };
 
-      
-      try {
+  
+   useEffect(() => {
+    if (!query) return;
+
+    const fetchData = async () => {
       setIsLoading(true);
-        setIsError(false);
-        
-        const  results = await fetchImages(query, page);
-        setNbPages(nbPages);
-        
+      setIsError(false);
+ 
+      try {
+        const { results, totalPages } = await fetchImages(query, page);
+       
         setImages((prevImages) => (page === 1 ? results : [...prevImages, ...results]));
         // setIsLoading(true);
+        setTotalPages(totalPages);
+
+        
       } catch (error) {
       toast.error("Помилка під час пошуку зображень!");
       setIsError(true);
       // setIsLoading(false);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
+        
       }
     };
     fetchData();
-  }, [page, query, nbPages]);
+  }, [page, query]);
   
 
   return (
-    <div>
-      <Toaster />
-      <SearchBar onSubmit={handleSearchSubmit} />
-      {/* {nbPages > page && <button onClick={() => setPage(prev => prev + 1)} >Load more</button>} */}
-      <button onClick={() => setPage(prev => prev + 1)} >Load more</button>
-      <ImageGallery images={images} onImageClick={openModal} />
-      {isLoading && <Loader />}
-      {isError && <h2>Упс, щось сталось! Оновіть сторінку...</h2>}
-      {/* <ImageModal isOpen={isOpenModal} onClose={closeModal}  /> */}
-      {/* {isOpen && <ImageModal />} */}
-    
-    </div>
-  );
+  <div>
+    <Toaster />
+    <SearchBar onSubmit={handleSearchSubmit} />
+    {images.length > 0 && (
+      <>
+        <ImageGallery images={images} onImageClick={handleImageClick} />
+        {page < totalPages && !isLoading && (
+          <button  className="loadMoreButton" onClick={() => setPage((prev) => prev + 1)}>Load more</button>
+        )}
+      </>
+    )}
+    {isLoading && <Loader />}
+    {isError && <h2>Упс, щось сталось! Оновіть сторінку...</h2>}
+    {chooseImage && (
+      <ImageModal
+        modalIsOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        onClose={closeModal}
+        image={chooseImage} 
+      />
+    )}
+  </div>
+);
 }
   
-
-
 export default App
