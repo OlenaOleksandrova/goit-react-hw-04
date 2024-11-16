@@ -5,7 +5,7 @@ import { fetchImages } from '../api';
 import { useState, useEffect } from 'react'
 import './App.css'
 import Loader from './components/Loader/Loader';
-import ImageModal from './components/ImageModal/ImageModal';
+import ImageModal from "./components/ImageModal/ImageModal"
 
 const App = () => {
   
